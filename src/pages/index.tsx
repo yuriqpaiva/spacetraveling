@@ -38,7 +38,6 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
         <title>Home | spacetraveling</title>
       </Head>
       <main className={styles.container}>
-        <img src="/logo.svg" alt="logo" />
         <div className={styles.content}>
           {results.map(post => {
             return (

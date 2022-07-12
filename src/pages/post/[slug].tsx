@@ -61,6 +61,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   // TODO
   return {
-    props: { slug },
+    props: {},
   };
 };
