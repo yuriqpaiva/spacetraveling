@@ -9,6 +9,7 @@ import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import Header from '../components/Header';
 
 interface Post {
   uid?: string;
@@ -37,6 +38,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       <Head>
         <title>Home | spacetraveling</title>
       </Head>
+      <Header homePage />
       <main className={styles.container}>
         <div className={styles.content}>
           {results.map(post => {
@@ -66,14 +68,6 @@ export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
 
   const postsResponse = await prismic.getByType('posts');
-
-  // uid?: string;
-  // first_publication_date: string | null;
-  // data: {
-  //   title: string;
-  //   subtitle: string;
-  //   author: string;
-  // };
 
   const posts = postsResponse.results.map(post => {
     const date = format(

@@ -1,1 +1,36 @@
-// TODO
+.container {
+  img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+  }
+}
+
+.content {
+  max-width: 1120px;
+  padding: 0 13.125rem;
+  margin: 2.5rem auto;
+
+  h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+
+  .infos {
+    color: var(--gray-400);
+    margin-bottom: 4rem;
+
+    svg {
+      margin-right: 0.5rem;
+    }
+
+    time {
+      margin-right: 1.5rem;
+    }
+
+    span {
+      margin-right: 1.5rem;
+    }
+  }
+}

@@ -1,5 +1,9 @@
 .container {
-  margin: 5rem auto;
   max-width: 1120px;
   padding: 0 13.125rem;
+  margin: 2.5rem auto;
+
+  &.homePage {
+    margin: 5rem auto;
+  }
 }
