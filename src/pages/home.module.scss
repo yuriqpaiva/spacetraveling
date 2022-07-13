@@ -1,7 +1,4 @@
-// TODO
-.container {
-  margin: 5rem auto;
-  max-width: 1120px;
+.main {
   padding: 0 13.125rem;
 
   img {
@@ -12,6 +9,12 @@
     display: block;
     & + a {
       margin-top: 3rem;
+    }
+  }
+
+  @media (max-width: 720px) {
+    & {
+      padding: 0 1rem;
     }
   }
 }

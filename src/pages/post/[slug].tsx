@@ -57,11 +57,17 @@ export default function Post({ post }: PostProps): JSX.Element {
         <title>{`${title} | spacetraveling`}</title>
       </Head>
       <Header />
-      <main className={styles.container}>
+      <div className={styles.bannerContainer}>
+        <img
+          src={post.data.banner.url}
+          alt="Post banner"
+          className={styles.banner}
+        />
+      </div>
+
+      <main className={`${commonStyles.container} ${styles.main}`}>
         {!router.isFallback && post ? (
           <>
-            <img src={post.data.banner.url} alt="" />
-
             <section className={styles.content}>
               <h1>{post.data.title}</h1>
 
