@@ -59,7 +59,7 @@ export default function Post({ post }: PostProps): JSX.Element {
       <Header />
       <div className={styles.bannerContainer}>
         <img
-          src={post.data.banner.url}
+          src={post?.data.banner.url}
           alt="Post banner"
           className={styles.banner}
         />
@@ -119,7 +119,6 @@ export const getStaticPaths: GetStaticPaths = async () => {
     })
     .slice(0, 2);
 
-  // TODO
   return {
     paths: postsToBuild,
     fallback: true,
@@ -136,18 +135,17 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     first_publication_date: response.first_publication_date,
     uid: response.uid,
     data: {
-      title: response.data.title,
-      subtitle: response.data.subtitle,
-      banner: { url: response.data.banner.url },
-      author: response.data.author,
-      content: response.data.content,
+      title: response?.data.title,
+      subtitle: response?.data.subtitle,
+      banner: { url: response?.data.banner.url },
+      author: response?.data.author,
+      content: response?.data.content,
     },
   };
 
   return {
     props: {
       post,
-      // readingTime,
     },
   };
 };
