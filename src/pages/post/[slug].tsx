@@ -1,18 +1,20 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { title } from 'process';
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import { RichText } from 'prismic-dom';
+import Image from 'next/image';
 import Header from '../../components/Header';
 import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
+import { formatDate } from '../../lib/formatDate';
 
 interface Post {
   first_publication_date: string | null;
+  readingTime: number;
   data: {
     title: string;
     banner: {
@@ -40,20 +42,43 @@ export default function Post({ post }: PostProps): JSX.Element {
       </Head>
       <Header />
       <main className={styles.container}>
-        <img src="/Banner.png" alt="" />
+        {post ? (
+          <>
+            <img src={post.data.banner.url} alt="" />
 
-        <section className={styles.content}>
-          <h1>Criando um app CRA do zero</h1>
+            <section className={styles.content}>
+              <h1>{post.data.title}</h1>
 
-          <div className={styles.infos}>
-            <FiCalendar />
-            <time>15 Mar 2021</time>
-            <FiUser />
-            <span>Yuri Paiva</span>
-            <FiClock />
-            <time>4 min</time>
+              <div className={styles.infos}>
+                <FiCalendar />
+                <time>{post.first_publication_date}</time>
+                <FiUser />
+                <span>{post.data.author}</span>
+                <FiClock />
+                <time>{post.readingTime} min</time>
+              </div>
+              {post.data.content.map(group => {
+                return (
+                  <div key={group.heading} className={styles.contentGroup}>
+                    <h2>{group.heading}</h2>
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: RichText.asHtml(group.body),
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </section>
+          </>
+        ) : (
+          <div className={styles.loading}>
+            <div>
+              <img src="/loading.svg" alt="" />
+              <span>Carregando...</span>
+            </div>
           </div>
-        </section>
+        )}
       </main>
     </>
   );
@@ -62,11 +87,20 @@ export default function Post({ post }: PostProps): JSX.Element {
 export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient({});
   const posts = await prismic.getByType('posts');
+  const postsToBuild = posts.results
+    .map(post => {
+      return {
+        params: {
+          slug: post.uid,
+        },
+      };
+    })
+    .slice(0, 3);
 
   // TODO
   return {
-    paths: [],
-    fallback: 'blocking',
+    paths: postsToBuild,
+    fallback: true,
   };
 };
 
@@ -76,31 +110,33 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const prismic = getPrismicClient({});
   const response = await prismic.getByUID('posts', String(slug));
 
-  const postContent = response.data.content.map(element => {
-    return {
-      heading: element.heading,
-      body: RichText.asHtml(element.body),
-    };
-  });
+  const readingTime = Math.round(
+    response.data.content.reduce((acc, group) => {
+      let currentAcc = acc;
 
-  // const something = postContent.map(element => {
-  //   return RichText.asHtml(element);
-  // });
+      const words = RichText.asText(group.body).split(' ');
+
+      currentAcc += words.length;
+
+      return currentAcc;
+    }, 0) / 200
+  );
 
   const post: Post = {
-    first_publication_date: response.first_publication_date,
+    first_publication_date: formatDate(response.first_publication_date),
+    readingTime,
     data: {
       title: response.data.title,
       banner: { url: response.data.banner.url },
       author: response.data.author,
-      content: postContent,
+      content: response.data.content,
     },
   };
 
-  console.log(JSON.stringify(postContent, null, 2));
-
-  // TODO
   return {
-    props: {},
+    props: {
+      post,
+      readingTime,
+    },
   };
 };

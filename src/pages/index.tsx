@@ -3,13 +3,12 @@ import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { FiCalendar, FiUser } from 'react-icons/fi';
-import { format } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 import Header from '../components/Header';
+import { formatDate } from '../lib/formatDate';
 
 interface Post {
   uid?: string;
@@ -70,29 +69,9 @@ export const getStaticProps: GetStaticProps = async () => {
   const postsResponse = await prismic.getByType('posts');
 
   const posts = postsResponse.results.map(post => {
-    const date = format(
-      new Date(post.first_publication_date),
-      "dd' 'MMMM' 'yyyy",
-      {
-        locale: ptBR,
-      }
-    ).split(' ');
-
-    const formattedDate = date.reduce((acc, value, index) => {
-      let currentAcc = acc;
-
-      if (index !== 1) {
-        currentAcc += value;
-      } else {
-        currentAcc += ` ${value.charAt(0).toUpperCase() + value.slice(1, 3)} `;
-      }
-
-      return currentAcc;
-    }, '');
-
     return {
       uid: post.uid,
-      first_publication_date: formattedDate,
+      first_publication_date: formatDate(post.first_publication_date),
       data: {
         title: post.data.title,
         subtitle: post.data.subtitle,

@@ -4,6 +4,28 @@
     height: 400px;
     object-fit: cover;
   }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 111px);
+
+    div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      img {
+        width: 125px;
+        height: 125px;
+      }
+
+      span {
+        display: inline-block;
+      }
+    }
+  }
 }
 
 .content {
@@ -20,6 +42,8 @@
   .infos {
     color: var(--gray-400);
     margin-bottom: 4rem;
+    display: flex;
+    align-items: center;
 
     svg {
       margin-right: 0.5rem;
@@ -31,6 +55,26 @@
 
     span {
       margin-right: 1.5rem;
+    }
+  }
+
+  .contentGroup {
+    color: var(--gray-300);
+
+    line-height: 140%;
+
+    h2 {
+      font-size: 2.25rem;
+      color: var(--gray-100);
+      margin-bottom: 4.625rem;
+    }
+
+    a {
+      color: var(--pink-300);
+    }
+
+    strong {
+      font-weight: bold;
     }
   }
 }
