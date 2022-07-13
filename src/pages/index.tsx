@@ -3,6 +3,7 @@ import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { FiCalendar, FiUser } from 'react-icons/fi';
+import { useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -30,7 +31,15 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
-  const { next_page, results } = postsPagination;
+  const { next_page } = postsPagination;
+  const [posts, setPosts] = useState(postsPagination.results);
+
+  const handleLoadMorePosts = async (): Promise<void> => {
+    const response = await fetch('link');
+    const data = await response.json();
+
+    setPosts([...posts, ...data.results]);
+  };
 
   return (
     <>
@@ -40,7 +49,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       <Header homePage />
       <main className={styles.container}>
         <div className={styles.content}>
-          {results.map(post => {
+          {posts.map(post => {
             return (
               <Link href={`/post/${post.uid}`} key={post.uid}>
                 <a>
@@ -48,7 +57,7 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
                   <p>{post.data.subtitle}</p>
                   <div className={styles.infos}>
                     <FiCalendar width={20} height={20} />
-                    <time>{post.first_publication_date}</time>
+                    <time>{formatDate(post.first_publication_date)}</time>
                     <FiUser width={20} height={20} />
                     <span>{post.data.author}</span>
                   </div>
@@ -56,7 +65,11 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
               </Link>
             );
           })}
-          {next_page && <button type="button">Carregar mais posts</button>}
+          {next_page && (
+            <button type="button" onClick={handleLoadMorePosts}>
+              Carregar mais posts
+            </button>
+          )}
         </div>
       </main>
     </>
@@ -71,7 +84,7 @@ export const getStaticProps: GetStaticProps = async () => {
   const posts = postsResponse.results.map(post => {
     return {
       uid: post.uid,
-      first_publication_date: formatDate(post.first_publication_date),
+      first_publication_date: post.first_publication_date,
       data: {
         title: post.data.title,
         subtitle: post.data.subtitle,
