@@ -12,7 +12,7 @@ export function formatDate(date: string): string {
     if (index !== 1) {
       currentAcc += value;
     } else {
-      currentAcc += ` ${value.charAt(0).toUpperCase() + value.slice(1, 3)} `;
+      currentAcc += ` ${value.slice(0, 3)} `;
     }
 
     return currentAcc;

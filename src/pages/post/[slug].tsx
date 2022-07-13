@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { title } from 'process';
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import { RichText } from 'prismic-dom';
-import Image from 'next/image';
+import { useRouter } from 'next/router';
 import Header from '../../components/Header';
 import { getPrismicClient } from '../../services/prismic';
 
@@ -13,10 +13,11 @@ import styles from './post.module.scss';
 import { formatDate } from '../../lib/formatDate';
 
 interface Post {
+  uid: string;
   first_publication_date: string | null;
-  readingTime: number;
   data: {
     title: string;
+    subtitle: string;
     banner: {
       url: string;
     };
@@ -35,6 +36,21 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps): JSX.Element {
+  const readingTime =
+    Math.round(
+      post?.data.content.reduce((acc, group) => {
+        let currentAcc = acc;
+
+        const words = RichText.asText(group.body).split(' ');
+
+        currentAcc += words.length;
+
+        return currentAcc;
+      }, 0) / 200
+    ) + 1;
+
+  const router = useRouter();
+
   return (
     <>
       <Head>
@@ -42,7 +58,7 @@ export default function Post({ post }: PostProps): JSX.Element {
       </Head>
       <Header />
       <main className={styles.container}>
-        {post ? (
+        {!router.isFallback && post ? (
           <>
             <img src={post.data.banner.url} alt="" />
 
@@ -51,11 +67,11 @@ export default function Post({ post }: PostProps): JSX.Element {
 
               <div className={styles.infos}>
                 <FiCalendar />
-                <time>{post.first_publication_date}</time>
+                <time>{formatDate(post.first_publication_date)}</time>
                 <FiUser />
                 <span>{post.data.author}</span>
                 <FiClock />
-                <time>{post.readingTime} min</time>
+                <time>{readingTime} min</time>
               </div>
               {post.data.content.map(group => {
                 return (
@@ -95,7 +111,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
         },
       };
     })
-    .slice(0, 3);
+    .slice(0, 2);
 
   // TODO
   return {
@@ -110,23 +126,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const prismic = getPrismicClient({});
   const response = await prismic.getByUID('posts', String(slug));
 
-  const readingTime = Math.round(
-    response.data.content.reduce((acc, group) => {
-      let currentAcc = acc;
-
-      const words = RichText.asText(group.body).split(' ');
-
-      currentAcc += words.length;
-
-      return currentAcc;
-    }, 0) / 200
-  );
-
   const post: Post = {
-    first_publication_date: formatDate(response.first_publication_date),
-    readingTime,
+    first_publication_date: response.first_publication_date,
+    uid: response.uid,
     data: {
       title: response.data.title,
+      subtitle: response.data.subtitle,
       banner: { url: response.data.banner.url },
       author: response.data.author,
       content: response.data.content,
@@ -136,7 +141,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   return {
     props: {
       post,
-      readingTime,
+      // readingTime,
     },
   };
 };
